@@ -1,5 +1,7 @@
 package travis
 
+import "strings"
+
 // BodyObject is the top level object received from a Travis CI webhook
 type BodyObject struct {
 	Payload PayloadObject `json:"payload"`
@@ -36,6 +38,16 @@ type RepositoryObject struct {
 	Name      string `json:"name"`
 	OwnerName string `json:"owner_name"`
 	URL       string `json:"url"`
+}
+
+func (r *RepositoryObject) Domain() string {
+	withoutName := strings.TrimSuffix(r.URL, r.Name)
+	withoutSlash := strings.TrimSuffix(withoutName, "/")
+	withoutOwner := strings.TrimSuffix(withoutSlash, r.OwnerName)
+	withoutSlash = strings.TrimSuffix(withoutOwner, "/")
+	withoutPrefix := strings.TrimPrefix(withoutSlash, "http://")
+	domain := strings.TrimPrefix(withoutPrefix, "https://")
+	return domain
 }
 
 // ConfigObject contains the notification data
