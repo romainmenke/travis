@@ -41,6 +41,6 @@ func ReceiveTravis(w http.ResponseWriter, r *http.Request) {
 	if callBack == nil {
 		span.Error("bad callback")
 	}
-	callBack(&bodyObject.Payload)
+	callBack(bodyObject.Payload)
 
 }
