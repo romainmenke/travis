@@ -4,7 +4,7 @@ import "strings"
 
 // BodyObject is the top level object received from a Travis CI webhook
 type BodyObject struct {
-	Payload PayloadObject `json:"payload"`
+	Payload *PayloadObject `json:"payload"`
 }
 
 // PayloadObject contains the actual data from Travis
@@ -27,9 +27,9 @@ type PayloadObject struct {
 	Type           string `json:"type"`
 	BuildURL       string `json:"build_url"`
 
-	Repository RepositoryObject `json:"repository"`
-	Config     ConfigObject     `json:"config"`
-	Matrix     []MatrixElement  `json:"matrix"`
+	Repository *RepositoryObject `json:"repository"`
+	Config     *ConfigObject     `json:"config"`
+	Matrix     []*MatrixElement  `json:"matrix"`
 }
 
 // RepositoryObject contains the repo data
@@ -52,7 +52,7 @@ func (r *RepositoryObject) Domain() string {
 
 // ConfigObject contains the notification data
 type ConfigObject struct {
-	Notifications NotificationsObject `json:"notifications"`
+	Notifications *NotificationsObject `json:"notifications"`
 }
 
 // NotificationsObject contains a list of webhooks
