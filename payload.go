@@ -1,14 +1,12 @@
 package travis
 
-import "strings"
-
-// BodyObject is the top level object received from a Travis CI webhook
-type BodyObject struct {
-	Payload *PayloadObject `json:"payload"`
+// requestBody is the top level object received from a Travis CI webhook
+type requestBody struct {
+	Payload *Payload `json:"payload"`
 }
 
-// PayloadObject contains the actual data from Travis
-type PayloadObject struct {
+// Payload contains the actual data from Travis
+type Payload struct {
 	ID             string `json:"id"`
 	Number         string `json:"number"`
 	Status         string `json:"status"`
@@ -27,36 +25,26 @@ type PayloadObject struct {
 	Type           string `json:"type"`
 	BuildURL       string `json:"build_url"`
 
-	Repository *RepositoryObject `json:"repository"`
-	Config     *ConfigObject     `json:"config"`
-	Matrix     []*MatrixElement  `json:"matrix"`
+	Repository *Repository      `json:"repository"`
+	Config     *Config          `json:"config"`
+	Matrix     []*MatrixElement `json:"matrix"`
 }
 
-// RepositoryObject contains the repo data
-type RepositoryObject struct {
+// Repository contains the repo data
+type Repository struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	OwnerName string `json:"owner_name"`
 	URL       string `json:"url"`
 }
 
-func (r *RepositoryObject) Domain() string {
-	withoutName := strings.TrimSuffix(r.URL, r.Name)
-	withoutSlash := strings.TrimSuffix(withoutName, "/")
-	withoutOwner := strings.TrimSuffix(withoutSlash, r.OwnerName)
-	withoutSlash = strings.TrimSuffix(withoutOwner, "/")
-	withoutPrefix := strings.TrimPrefix(withoutSlash, "http://")
-	domain := strings.TrimPrefix(withoutPrefix, "https://")
-	return domain
+// Config contains the notification data
+type Config struct {
+	Notifications *Notifications `json:"notifications"`
 }
 
-// ConfigObject contains the notification data
-type ConfigObject struct {
-	Notifications *NotificationsObject `json:"notifications"`
-}
-
-// NotificationsObject contains a list of webhooks
-type NotificationsObject struct {
+// Notifications contains a list of webhooks
+type Notifications struct {
 	WebHooks []string `json:"webhooks"`
 }
 
@@ -82,5 +70,5 @@ type MatrixElement struct {
 	AuthorEmail    string `json:"author_email"`
 	CompareURL     string `json:"compare_url"`
 
-	Config ConfigObject `json:"config"`
+	Config Config `json:"config"`
 }

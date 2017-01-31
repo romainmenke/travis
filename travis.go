@@ -2,45 +2,30 @@ package travis
 
 import (
 	"encoding/json"
-	"io"
+	"errors"
 	"io/ioutil"
 	"net/http"
-
-	"limbo.services/trace"
-
-	"github.com/gorilla/mux"
-	"golang.org/x/net/context"
 )
 
-var callBack func(payload *PayloadObject)
+// GetPayload just reads from the request and returns the unmarshalled Payload
+func GetPayload(r *http.Request) (*Payload, error) {
 
-func HandleTravisWebHook(r *mux.Router, path string, f func(payload *PayloadObject)) {
-	callBack = f
-	r.HandleFunc(path, ReceiveTravis)
-}
-
-func ReceiveTravis(w http.ResponseWriter, r *http.Request) {
-
-	ctx := context.Background()
-
-	span, ctx := trace.New(ctx, "travis.receive")
-	defer span.Close()
-
-	var bodyObject BodyObject
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	var b requestBody
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		span.Error(err)
+		return nil, err
 	}
 	defer r.Body.Close()
 
-	err = json.Unmarshal(body, &bodyObject)
+	err = json.Unmarshal(body, &b)
 	if err != nil {
-		span.Error(err)
+		return nil, err
 	}
 
-	if callBack == nil {
-		span.Error("bad callback")
+	if b.Payload == nil {
+		return nil, errors.New("missing data")
 	}
-	callBack(bodyObject.Payload)
+
+	return b.Payload, nil
 
 }
